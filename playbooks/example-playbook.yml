@@ -1,0 +1,68 @@
+---
+- hosts: example
+  become: true
+  tasks:
+    - name: install docker
+      yum:
+        name: docker
+        state: present
+    
+    - name: install docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.23.2/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 0777
+
+    - name: Create directory structure to support InfluxDB and Telegraf
+      file:
+        path: /opt/monitoring
+        state: directory
+    - name: Copy the docker-compose file to remote host
+      copy:
+        src: ../roles/docker_host/files/docker-compose.yml
+        dest: /opt/monitoring
+        owner: root
+        group: root
+        mode: 0555
+
+    - name: start docker
+      service: name=docker state=started
+    
+    - name: create docker network for InfluxDB and Telegraf
+      command: docker network create monitoring
+      ignore_errors: true
+      args:
+        chdir: /opt/monitoring
+
+    - name: create docker volume for InfluxDB
+      command: docker volume create influxdb-volume
+      ignore_errors: true
+      args:
+        chdir: /opt/monitoring
+
+    - name: create docker volume for Grafana
+      command: docker volume create grafana-volume
+      ignore_errors: true
+      args:
+        chdir: /opt/monitoring
+
+    - name: copy script to do the docker thang!
+      copy:
+        src: /usr/local/bin/docker-run.sh
+        dest: /usr/local/bin/docker-run.sh
+        owner: root
+        group: root
+        mode: 0777
+
+    - name: do the docker thang from local script
+      script: /usr/local/bin/docker-run.sh
+      args: 
+        chdir: /opt/monitoring
+
+    - name: docker-up, son!
+      shell: /usr/local/bin/docker-compose up -d
+      args:
+        chdir: /opt/monitoring
+
+
+

@@ -1,0 +1,5 @@
+---
+# tasks file for all servers monitored by InfluxDB
+# 
+
+- include: influxdb.yml

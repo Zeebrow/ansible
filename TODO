@@ -1,0 +1,14 @@
+TODO:
+
+- organize the messy playbook into meaningful Ansible roles
+
+- Consider 
+
+- find 
+
+- improve error handling, specifically for the task dealing with creating a docker network.
+  It will produce an error if the network already exists, and the workaround is to simply continue 
+  the playbook anyways.  Is there a more graceful solution?  This solution won't work for different
+  situations.
+  
+  
